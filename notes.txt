@@ -1,0 +1,42 @@
+
+Job 0:
+    - count total # of documents
+Job 1:
+    - mapper:
+        - clean & preprocess data
+        - (key, value) = ({term}{docId}, count)
+    - reducer:
+        - (key, value) = ({term}{docId}, totalCountcount)
+Job 2:
+    - mapper:
+        - take (term, {docId, totalCount})
+        - return ({docId, term}, {totalCount, docCount}) 
+            - totalCount remains the same
+            - docCount(focus) is # of documents term appears in
+    - reducer:
+        - return ({docId, term}, {totalCount, totalDocCount}) 
+Job 3:
+    - mapper:
+        - nada
+    - reducer:
+        - calculate tf-idf
+        - (term, {})
+
+Data needed for tf-idf calculation:
+- frequency of term t in document d ----------job1
+- # of documents that contain term t----------job2
+- # of documents------------------------------job0
+- 
+
+Job 1:
+    - M: ({term}{id}, 1)
+    - R: ({term}{id}, tf) where tf = term frequency
+Job 2:
+    - M: (term, {id}{tf}{1})
+    - R: (term, {id}{tf}{nk}) where nk = document frequency of term k
+Job 3:
+    - M: (term, {id}{tf}{nk})
+    - R: (term, {idf}{id}{tf}{nk}) where idf is the inverse document frequency
+Job 4:
+    - M: ({term}{id}, {idf}{tf}{nk})
+    - R: ({term}{id}, {idf}{tf}{nk}{d}) where d is the normalization factor
