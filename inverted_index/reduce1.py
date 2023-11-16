@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Reducer 1."""
+
+
 import sys
 import itertools
 
@@ -11,6 +13,7 @@ def reduce_one_group(key, group):
         _, count = line.strip().split("\t")
         total_count += int(count)
     print(f"{key}\t{total_count}")
+
 
 def keyfunc(line):
     """Return the key from a TAB-delimited key-value pair."""

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Map 1."""
+"""Map 2."""
 import sys
 
 # Open and read from one HTML document at a time
