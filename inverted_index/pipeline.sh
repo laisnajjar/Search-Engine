@@ -67,6 +67,8 @@ madoop \
 # Job 5
 madoop \
   -input output4 \
-  -output output \
+  -output output5 \
   -mapper ./map5.py \
   -reducer ./reduce5.py
+
+# cp -r output5 index_server/index/inverted_index
