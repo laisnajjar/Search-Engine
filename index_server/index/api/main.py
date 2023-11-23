@@ -7,30 +7,42 @@ from flask import request, jsonify
 import index
 
 
-#global variables
+# global variables
 inverted_index_file = {}
 pagerank_file = {}
 stopwords = set()
 cwd = Path.cwd()
 # stopwrods loading
-stopwords_file_path = os.path.join(cwd, "index_server/index/", "stopwords.txt")
+stopwords_file_path = os.path.join(
+    cwd,
+    "index_server/index/",
+    "stopwords.txt"
+)
 with open(stopwords_file_path, 'r', encoding='utf-8') as sf:
     stopwords = set(sf.read().split('\n'))
 # pagrank loading
-pagerank_file_path = os.path.join(cwd, "index_server/index/", "pagerank.out")
+pagerank_file_path = os.path.join(
+    cwd,
+    "index_server/index/",
+    "pagerank.out"
+)
 with open(pagerank_file_path, 'r', encoding='utf-8') as pf:
     for line in pf:
-        doc_id, score = line.split(',')
-        pagerank_file[doc_id] = score
+        doc_id, num = line.split(',')
+        pagerank_file[doc_id] = num
 
 
 def load_index(path):
     """Load the inverted index from a file."""
-    inverted_file_path = os.path.join(cwd, "index_server/index/inverted_index", path)
+    inverted_file_path = os.path.join(
+        cwd,
+        "index_server/index/inverted_index",
+        path
+    )
     # Load inverted index
     with open(inverted_file_path, 'r', encoding='utf-8') as invf:
-        for l in invf:
-            parts = l.split()
+        for lne in invf:
+            parts = lne.split()
             word = parts[0]
             idf = parts[1]
 
@@ -59,6 +71,7 @@ def load_index(path):
         #     }
         # }
 
+
 def clean_query(query):
     """Clean the query."""
     # Remove stopwords and special characters
@@ -70,6 +83,7 @@ def clean_query(query):
     #          and inverted_index_file[w]['idf'] != '0']
     return query
 
+
 @index.app.route('/api/v1/', methods=['GET'])
 def index1():
     """Return the API endpoints."""
@@ -78,6 +92,7 @@ def index1():
         "url": "/api/v1/"
     })
 
+
 def get_query_vector(tf_query):
     """Return the query vector."""
     query_vector = []
@@ -85,6 +100,7 @@ def get_query_vector(tf_query):
         idf = float(inverted_index_file[word]['idf'])
         query_vector.append((qtf * idf))
     return query_vector
+
 
 def get_doc_vector(query, docid):
     """Return the document vector."""
@@ -96,6 +112,7 @@ def get_doc_vector(query, docid):
         doc_vector.append(tfidf)
     return doc_vector
 
+
 def get_doc_count(tf_query):
     """Return the document count."""
     doc_count = defaultdict(int)
@@ -103,6 +120,7 @@ def get_doc_count(tf_query):
         for docid in inverted_index_file[word]['docs']:
             doc_count[docid] += 1
     return doc_count
+
 
 def get_query_norm(query_vector):
     """Return the query norm."""
@@ -112,12 +130,14 @@ def get_query_norm(query_vector):
     query_norm = query_norm ** 0.5
     return query_norm
 
+
 def get_doc_norm(query, docid):
     """Return the document norm."""
-    word = query[0] # get first word in query
+    word = query[0]  # get first word in query
     # since all words in docid have same norm
     doc_norm = float(inverted_index_file[word]['docs'][docid]['norm']) ** 0.5
     return doc_norm
+
 
 def get_score(docid, query, weight, query_vector, doc_vector):
     """Return the score."""
@@ -126,11 +146,13 @@ def get_score(docid, query, weight, query_vector, doc_vector):
     # document normalization
     doc_norm = get_doc_norm(query, docid)
     # dot product: document vector * query vector
-    dot_product = sum([float(a)*float(b) for a,b in zip(query_vector, doc_vector)])
+    dot_product = sum(float(a)*float(b) for a, b in zip(
+        query_vector, doc_vector))
     tfidf = dot_product / (query_norm * doc_norm)
     # score
     score = (weight * float(pagerank_file[docid])) + ((1 - weight) * tfidf)
     return score
+
 
 @index.app.route('/api/v1/hits/', methods=['GET'])
 def hits():
@@ -142,7 +164,7 @@ def hits():
     }
 
     tf_query = defaultdict(int)
-    for word in query:# Debugging line
+    for word in query:  # Debugging line
         if word in inverted_index_file:
             if inverted_index_file[word]['idf'] != 0:
                 tf_query[word] += 1
@@ -157,11 +179,21 @@ def hits():
         if count == len(tf_query):
             # score
             doc_vector = get_doc_vector(query, docid)
-            score = get_score(docid, query, weight, query_vector, doc_vector)
+            final_score = get_score(
+                docid,
+                query,
+                weight,
+                query_vector,
+                doc_vector
+            )
             final_hits['hits'].append({
                 "docid": int(docid),
-                "score": score,
+                "score": final_score,
             })
             # sort by score
-    final_hits['hits'] = sorted(final_hits['hits'], key=lambda k: k['score'], reverse=True)
+    final_hits['hits'] = sorted(
+        final_hits['hits'],
+        key=lambda k: k['score'],
+        reverse=True
+    )
     return jsonify(final_hits)
