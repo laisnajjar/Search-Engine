@@ -32,6 +32,16 @@
         />
         <input type="submit" value="Search" />
       </form>
+      {% if results is none %} {% for result in results %}
+      <a class="doc_url">{{result['url']}}</a>
+      <div class="doc_title">{{result['title']}}</div>
+      <div class="doc_summary">
+        {% if result['summary'] is not none %} {{result['summary']}} {% else
+        %}No summary available.{% endif %}
+      </div>
+      {% endfor %} {% else %}
+      <div class="no_results">No results found.</div>
+      {% endif %}
     </div>
   </body>
 </html>

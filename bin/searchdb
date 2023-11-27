@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -Eeuo pipefail
+set -x
+
+case $1 in
+    "create")
+        if [ -f var/search.sqlite3 ]; then
+            echo "Error: database already exists"
+            exit 1
+        fi
+        mkdir -p var/
+        sqlite3 var/search.sqlite3 < search_server/search/sql/search.sql
+        ;;
+    "destroy")
+        rm -f var/search.sqlite3
+        ;;
+    "reset")
+        rm -f var/search.sqlite3
+        mkdir -p var/
+        sqlite3 var/search.sqlite3 < search_server/search/sql/search.sql
+        ;;
+esac
