@@ -4,3 +4,5 @@ search.egg-info/SOURCES.txt
 search.egg-info/dependency_links.txt
 search.egg-info/requires.txt
 search.egg-info/top_level.txt
+search/views/__init__.py
+search/views/index.py
