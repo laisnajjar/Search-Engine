@@ -5,7 +5,7 @@ set -x
 
 case $1 in
     "start")
-        if pgrep -af "flask --app search" > /dev/null; then
+        if pgrep -f "flask --app search run --host 0.0.0.0 --port 8000"; then
             echo "Error: search server already running"
             exit 1
         fi
@@ -14,13 +14,14 @@ case $1 in
             echo "Try: ./bin/searchdb create"
             exit 1
         fi
-        if ! ./bin/index status; then
+        if ! ../bin/index status; then
             echo "Error: index server is not running"
             exit 1
         fi
         mkdir -p var/log
         rm -f var/log/search.log
         flask --app search run --host 0.0.0.0 --port 8000 &> var/log/search.log &
+        tail -f var/log/search.log
         ;;
     "stop")
         if ! pgrep -af "flask --app search" > /dev/null; then
@@ -30,7 +31,7 @@ case $1 in
         pkill -f 'flask --app search run --host 0.0.0.0 --port 8000' || true
         ;;
     "restart")
-        if pgrep -af "flask --app search" > /dev/null; then
+        if pgrep -f "flask --app search run --host 0.0.0.0 --port 8000" > /dev/null; then
             pkill -f 'flask --app search run --host 0.0.0.0 --port 8000' || true
         fi
         mkdir -p var/log
@@ -38,7 +39,7 @@ case $1 in
         flask --app search run --host 0.0.0.0 --port 8000 &> var/log/search.log &
         ;;
     "status")
-        if pgrep -af "flask --app search run --host 0.0.0.0 --port 8000" > /dev/null; then
+        if pgrep -f "flask --app search run --host 0.0.0.0 --port 8000" > /dev/null; then
             echo "search server running"
         else
             echo "search server stopped"

@@ -5,7 +5,7 @@ import pathlib
 # Root of this application, useful if it doesn't occupy an entire domain
 APPLICATION_ROOT = '/'
 # File Upload to var/uploads/
-SEARCH_ROOT = pathlib.Path(__file__).resolve().parent.parent
+SEARCH_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 DATABASE_FILENAME = SEARCH_ROOT/'var'/'search.sqlite3'
 
 # API URLs

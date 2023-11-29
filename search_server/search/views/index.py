@@ -22,18 +22,19 @@ def fetch_results(url, q, w, results):
 @search.app.route('/', methods=["GET"])
 def show_index():
     """Display / route."""
-
     q = flask.request.args.get("q", default=None, type=str)
-    w = flask.request.args.get("w", default= 0.3, type=float)
+    w = flask.request.args.get("w", default=0.3, type=float)
     db = search.model.get_db()
-    context = {}
+    context = {"results": []}
 
     if q is not None:
         results = []
         threads = []
 
         for url in SEARCH_INDEX_SEGMENT_API_URLS:
-            thread = threading.Thread(target=fetch_results, args=(url, q, w, results))
+            thread = threading.Thread(
+                target=fetch_results,
+                args=(url, q, w, results))
             thread.start()
             threads.append(thread)
 
@@ -47,7 +48,7 @@ def show_index():
         for result in results:
             doc_fetch_info = db.execute(
                 "SELECT * FROM Documents WHERE docid = ? ", (result["docid"],)
-            ).fetchall()
-            context[result["docid"]] = doc_fetch_info[0]
-
+            ).fetchone()
+            if doc_fetch_info is not None:
+                context["results"].append(doc_fetch_info)
     return flask.render_template("index.html", **context)
