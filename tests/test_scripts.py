@@ -19,8 +19,7 @@ def setup_teardown_fixture():
     """Set up the test and cleanup after."""
     # Setup code: make sure no stale processes are running
     assert not pgrep("flask"), \
-        "Found running flask process.  Try 'pkill -f flask'"
-
+        "Found running flask process.  Try 'pkill -f flask'" 
     # Transfer control to testcase
     yield None
 
@@ -51,34 +50,34 @@ def test_servers_start(setup_teardown):
     """Verify index and search servers start."""
     # We need to use subprocess.run() on commands that will return non-zero
     # pylint: disable=subprocess-run-check
-
+    print("line 1")
     # Try to start search server with missing database
     db_path = Path("var/search.sqlite3")
     if db_path.exists():
         db_path.unlink()
     completed_process = subprocess.run(["bin/search", "start"])
     assert completed_process.returncode != 0
-
+    print("line 2")
     # Create database
     db_path.parent.mkdir(exist_ok=True)
     shutil.copy(utils.TESTDATA_DIR/"search.sqlite3", db_path)
-
+    print("line 3")
     # Try to start search server with missing index server
     completed_process = subprocess.run(["bin/search", "start"])
     assert completed_process.returncode != 0
-
+    print("line 4")
     # Start index server, which should start 3 Flask processes
     subprocess.run(["bin/index", "start"], check=True)
     assert wait_for_flask_start(nprocs=3)
-
+    print("line 5")
     # Try to start index server when it's already running
     completed_process = subprocess.run(["bin/index", "start"])
     assert completed_process.returncode != 0
-
+    print("line 6")
     # Start search server
     subprocess.run(["bin/search", "start"], check=True)
     assert wait_for_flask_start(nprocs=4)
-
+    print("line 7")
     # Try to start search server when it's already running
     completed_process = subprocess.run(["bin/search", "start"])
     assert completed_process.returncode != 0
@@ -229,5 +228,6 @@ def wait_for_flask_stop():
     for _ in range(TIMEOUT):
         if not pgrep("flask"):
             return True
+        print(pgrep("flask"))
         time.sleep(1)
     return False

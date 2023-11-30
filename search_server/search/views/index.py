@@ -5,7 +5,6 @@ import heapq
 import flask
 import search
 import requests
-from search.config import SEARCH_INDEX_SEGMENT_API_URLS
 
 
 def fetch_results(url, q, w, results):
@@ -31,7 +30,7 @@ def show_index():
         results = []
         threads = []
 
-        for url in SEARCH_INDEX_SEGMENT_API_URLS:
+        for url in search.app.config["SEARCH_INDEX_SEGMENT_API_URLS"]:
             thread = threading.Thread(
                 target=fetch_results,
                 args=(url, q, w, results))
